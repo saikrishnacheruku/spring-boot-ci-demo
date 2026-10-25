@@ -43,5 +43,11 @@ jobs:
           script: |
             docker stop spring-demo || true
             docker rm spring-demo || true
+            # Kill any other container still holding port 8080
+            CONTAINER_ON_8080=$(docker ps -q --filter "publish=8080")
+            if [ -n "$CONTAINER_ON_8080" ]; then
+              docker stop $CONTAINER_ON_8080 || true
+              docker rm $CONTAINER_ON_8080 || true
+            fi
             docker pull ${{ secrets.DOCKER_USERNAME }}/spring-boot-ci-demo:latest
             docker run -d --name spring-demo -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/spring-boot-ci-demo:latest
